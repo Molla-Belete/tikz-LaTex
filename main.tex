@@ -1,0 +1,177 @@
+\documentclass{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\begin{document}
+\pagestyle{empty}
+
+
+% Define block styles
+\tikzstyle{decision} = [diamond, draw, fill=white!20, 
+text width=6em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=green!20, 
+text width=9em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{block2} = [rectangle, draw, fill=white!20, 
+text width=9em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=Red!20, node distance=3cm,
+minimum height=4em]
+
+\begin{figure}[!ht]
+  \centering
+  \hspace*{-135pt}
+  \begin{tikzpicture}[node distance = 2cm, auto]
+    % nodes
+    \node [block] (init) {\Large Obtain sampling frame};
+    \node [block, below of = init] (contact) {\Large Contact eligible participants};
+    \node [block, below of = contact] (consent) {\Large Obtain consent};
+    \node [decision, below of = consent] (screening) {\Large Screening for cognitive function};
+    \node [block, right of = screening, node distance = 5cm] (refer) {\Large Refer to geriatric psychiatrists};
+    \node [block, below of = screening, node distance = 3.5cm] (assess0) {\Large Baseline assessment};
+    % \node [block2, right of = contact, node distance = 5cm] (lifestyle) {\Large Administer lifestyle questionnaire};
+    % \node [block2, right of = lifestyle, node distance = 4cm] (nutrition) {\Large Administer nutrition assessment};
+    % \node [block2, right of = nutrition, node distance = 4cm] (blood) {\Large Take urine \& blood sample};
+    % \node [block2, below of = nutrition, node distance = 3cm] (genetics) {\Large Genotyping};
+    % \node [block2, below of = blood, node distance = 3cm] (metabolomics) {\Large Metabolomics profiling};
+    % \node [block2, above of = nutrition] (assess) {\Large Assessment};
+    \node [decision, below of = assess0, node distance = 3cm] (followup) {\Large Follow-up screening pass?};
+    \node [decision, right of = followup, node distance = 5cm] (confirm){\Large Confirm by geriatric psychiatrists};
+    \node [block, right of = confirm, node distance = 4.8cm] (case){\Large Confirmed case};
+    \node [block, below of = followup, node distance = 3.5cm] (assessn) {\Large Repeated assessment};
+    \node [block, left of = followup, node distance = 4cm] (interval) {\Large Data processing};
+    \node [block, below of = assessn, node distance = 2.5cm] (end) {\Large End of study};
+    \node [block, below of = case, node distance = 3cm] (bloodcase) {\Large Take urine \& blood sample only};
+    % edges
+    \path [line] (init) -- (contact);
+    \path [line] (contact) -- (consent);
+    \path [line] (consent) -- (screening);
+    \path [line] (screening) -- node {eligible}(assess0);
+    \path [line] (screening) -- node {\Large no}(refer);
+   % \path [line] (assess) -| (lifestyle);
+    %\path [line] (assess) -- (nutrition);
+    % \path [line] (assess) -| (blood);
+    % \path [line] (blood) -- (metabolomics);
+    %\path [line] (blood) |- ([xshift = -2.3cm, yshift = 1cm]metabolomics.north west) -- (genetics);
+    \path [line] (assess0) -- (followup);
+    \path [line] (followup) -- node {\Large no}(confirm);
+    \path [line] (followup) -- node {\Large yes}(assessn);
+    \path [line] (assessn) -| node {\Large 2 years}(interval);
+    \path [line] (interval) -- (followup);
+    \path [line] (confirm) -- node {\Large yes}(case);
+    \path [line] (confirm) |- node {\Large no}(assessn);
+    \path [line] (assessn) -- (end);
+    \path [line] (case) -- (bloodcase);
+  \end{tikzpicture}
+\end{figure}
+
+
+
+\newpage
+\begin{tikzpicture}[node distance = 2cm, auto]
+    %node plot
+    \node[cloud](H1){pitest trigered};
+    \node[block,below of=H1, node distance=2cm](scan){scan pom.xml file};
+    \node[decision,below of=scan](pitest){Is pitest dependency rejected?};
+    \node[block,right of = pitest, node distance= 4.5cm](inject){inject pitest dependency};
+    \node[block,below of=pitest, node distance =3.1cm](creat){create command for pitest};
+    \node[block,below of=creat](perform){Perform pitest};
+    \node[decision, below of = perform](passed){Is pitset passed?};
+    \node[block, right of =passed, node distance =4.5cm](low side){return status failed at pitest};
+    \node[cloud, right of =low side, node distance 2cm](two side){end};
+    \node[block, below of = passed, node distance =2.7cm](return){return status successed at pitest};
+    \path[line](H1)--(scan);
+    \path[line](scan)--(pitest);
+    \path[line](pitest)--node[near middle, color=black]{Yes}(creat);
+    \path[line](creat)--(perform);
+    \path[line](perform)--(passed);
+    \path[line](passed)--node[near middle, color = black]{Yes}(return);
+    \path[line](pitest)--node[near middle, color = black]{No}(inject);
+     \path[line](passed)--node[near middle, color = black]{No}(low side);
+      \path[line](low side)--node[near middle, color = black]{No}(two side);
+        \path[line](return)-|(two side);
+        \path[line](inject)|-(perform);
+    \end{tikzpicture}
+    % PiTest flow.
+
+    
+    \newpage
+    \begin{tikzpicture}[node distance = 2cm, auto]
+         %node plot
+    \node[cloud](H2){Scheduled};
+    \node[block,below of=H2](check){Check local sumitted project directory};
+    \node[decision,below of=check](file){Is have new file};
+     \node[cloud, right of = file, node distance =4.5cm](elipsee){end no project};
+    \node[block,left of = file, node distance= 4.5cm](move){Move file to local project processing folder};
+    \node[block,below of=move, node distance =3.5cm](unit){Excute unit test};
+     \node[decision,right of=unit, node distance =4.5cm](is unitest){Is unitest passed};
+    \node[block,below of=is unitest, node distance=2.7cm](pitest){Excute pitest};
+    \node[decision,below of=pitest, node distance=2.7cm](third){Is pitest passed};
+    \node[block, right of = third, node distance =4.5cm](elipse){move file to local project failed};
+    \node[block, left of = third, node distance = 4.5cm](moved){Move file to local project passed};
+   \node[block, below of = moved, node distance =2.5cm](send){Send email notification testing result and attaches report file};
+    \node[cloud, right of = send, node distance=4.6cm](final){end};
+    % \node[block, below of =local pro, node distance =2.5cm](send){Send email notification testing result and attaches repr0t file};
+    \path[line](H2)--(check);
+    \path[line](check)--(file);
+     \path[line](file)--node[near middle, color=black]{Yes}(move);
+      \path[line](move)--(unit);
+    \path[line](unit)--(is unitest);
+     \path[line](is unitest)--node[near middle, color = black]{Yes}(pitest);
+     \path[line](pitest)--(third);
+     \path[line](third)--node[near middle, color = black]{Yes}(moved);
+     \path[line](moved)--(send);
+        \path[line](send)--(final);
+        \path[line](elipse.south)|-(send.north);
+        \path[line](third)--node[near middle, color=black]{No}(elipse);
+       \path[line](is unitest)-|node[near middle, color=black]{No}(elipse);
+       \path[line](file)--(elipsee)
+    \end{tikzpicture}
+% Main flow.
+    \newpage
+
+
+    
+    % \begin{tikzpicture}[node distance = 2cm, auto]
+    % \node[cloud](H3){Scheduled};
+    % \node[block,below of=H3, node distance=3.1cm](Rclone){Rclone move file from Dropbox submitted project to local submitted project};
+    % \node[block,below of=Rclone, node distance =3.5cm](failed){Rclone move file from local project failed to Dropbox project failed};
+    % \node[block,below of=failed,node distance=3.5cm](success){Rclone move file from local project success to Dropbox project success};
+    
+    % \node[cloud, below of = success, node distance =2.7cm](return){end};
+    %  \path[line](H3)--(Rclone);
+    % \path[line](Rclone)--(failed);
+    %  \path[line](failed)--(success);
+    % \path[line](success)--(return);
+    % \path[line](perform)--(passed);
+    % \path[line](passed)--node[near middle, color = black]{Yes}(return);
+    % \path[line](pitest)--node[near middle, color = black]{No}(inject);
+    %  \path[line](passed)--node[near middle, color = black]{No}(low side);
+    %   \path[line](low side)--node[near middle, color = black]{No}(two side);
+    %     \path[line](return)-|(two side);
+    %     \path[line](inject)|-(perform);
+    %\end{tikzpicture}
+    % Moving flow
+
+
+    
+    \newpage
+    \begin{tikzpicture}[node distance = 2cm, auto]
+    \node[cloud](H4){unitest triggered};
+    \node[block,below of=H4, node distance=3.1cm](create){Create command for unitest};
+    \node[block,below of=create, node distance =3.5cm](perform){Perform unitest};
+    \node[decision,below of=perform,node distance=3.5cm](passed){Is unit test passed};
+    \node[block, right of=passed,node distance=4.5cm](Return){Return status failed at unit test};
+    \node[cloud, right of=Return,node distance=4.5cm](two){End};
+    \node[block, below of = passed, node distance =3.2cm](return){Perform pitest};
+     \path[line](H4)--(create);
+     \path[line](create)--(perform);
+     \path[line](perform)--(passed);
+     \path[line](passed)--node[near middle,color=black]{Yes}(return);
+     \path[line](return)-|(two);
+     \path[line](passed)--node[near middle, color = black]{No}(Return);
+     \path[line](Return)--(two);
+    %  \path[line](passed)--node[near middle, color = black]{No}(low side);
+    \end{tikzpicture}
+    % Junit test flow 
+\end{document}
